@@ -1,0 +1,30 @@
+set echo on
+connect target sys/{{ sys_password }}@{{ primary_db_instance_name }}
+connect auxiliary sys/{{ sys_password }}@{{ target_oracle_host_node }}:{{ aux_listener_port }}/{{ global_dbname }}
+run {
+ allocate auxiliary channel c1 device type disk ;
+ allocate auxiliary channel c2 device type disk ;
+ allocate auxiliary channel c3 device type disk ;
+ allocate auxiliary channel c4 device type disk ;
+allocate channel d1 device type disk;
+allocate channel d2 device type disk;
+allocate channel d3 device type disk;
+allocate channel d4 device type disk;
+ duplicate target database for standby from active database
+ spfile
+ set db_unique_name='{{ standby_db_unique_name }}'
+ set instance_name='{{ standby_db_instance_name }}'
+ set instance_number='1'
+ set compatible='19.0.0'
+ set db_file_name_convert='{{ primary_data_diskgroup}}/{{ primary_db_unique_name}}/','{{ standby_data_diskgroup }}/{{ standby_db_unique_name }}/','{{ primary_fra_diskgroup }}/{{ primary_db_unique_name }}/','{{ standby_fra_diskgroup }}/{{ standby_db_unique_name }}/'
+ set log_file_name_convert='{{ primary_redoa_diskgroup}}/{{ primary_db_unique_name}}/','{{ standby_redoa_diskgroup }}/{{ standby_db_unique_name }}/','{{ primary_fra_diskgroup }}/{{ primary_db_unique_name }}/','{{ standby_fra_diskgroup }}/{{ standby_db_unique_name }}/'
+ set control_files='{{ standby_redoa_diskgroup }}/{{ standby_db_unique_name }}/controlfile/current.ctl'
+set fal_client='{{ standby_db_unique_name }}'
+ set fal_server='{{ primary_db_unique_name }}'
+ set standby_file_management='AUTO'
+ set log_archive_config='dg_config=({{ primary_db_unique_name }},{{ standby_db_unique_name }})'
+ set log_archive_dest_1='LOCATION=USE_DB_RECOVERY_FILE_DEST VALID_FOR=(ALL_LOGFILES,ALL_ROLES) DB_UNIQUE_NAME={{ standby_db_unique_name }}'
+ set log_archive_dest_2='service={{ primary_db_unique_name }} ASYNC valid_for=(ONLINE_LOGFILES,PRIMARY_ROLE) db_unique_name={{ primary_db_unique_name }}'
+ set audit_file_dest='/{{ parent_directory_name }}/{{ standby_db_unique_name }}/adump';
+}
+

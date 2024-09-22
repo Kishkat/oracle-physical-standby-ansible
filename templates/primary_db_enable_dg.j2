@@ -1,0 +1,7 @@
+alter system set LOG_ARCHIVE_CONFIG='DG_CONFIG=({{ primary_db_unique_name }},{{ standby_db_unique_name }})';
+alter system set LOG_ARCHIVE_DEST_1='LOCATION=USE_DB_RECOVERY_FILE_DEST VALID_FOR=(ALL_LOGFILES,ALL_ROLES) DB_UNIQUE_NAME={{ primary_db_unique_name }}';
+alter system set LOG_ARCHIVE_DEST_2='SERVICE={{ standby_db_unique_name }} LGWR ASYNC VALID_FOR=(ONLINE_LOGFILE,PRIMARY_ROLE) DB_UNIQUE_NAME={{ standby_db_unique_name }}';
+alter system set LOG_ARCHIVE_DEST_STATE_2=enable;
+alter system set FAL_SERVER={{ standby_db_unique_name }};
+alter system set FAL_CLIENT={{ primary_db_unique_name }};
+exit;

@@ -1,1 +1,4 @@
 *.db_name={{ auxiliary_db_name }}
+{% if isCDB is defined %}
+*.enable_pluggable_database=true
+{% endif %}
