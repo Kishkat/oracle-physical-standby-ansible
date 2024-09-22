@@ -13,7 +13,7 @@ Physical standby database creation using Oracle's RMAN Active duplicate and Ansi
 To enable dataguard configs on primary database, run below playbook
 
 ````
-ansible-playbook -i inventory/hosts primary_db_dg_enable.yml --extra-vars hosts="grid2.kk.local"  --ask-pass --ask-become-pass
+ansible-playbook -i inventory/hosts primary_db_dg_enable.yml --extra-vars hosts="<primary_db_server_name>"  --ask-pass --ask-become-pass
 ````
 
 To create Oracle dataguard/physical standby database for Non-RAC-Non-RAC setup , run below playbook </br>
