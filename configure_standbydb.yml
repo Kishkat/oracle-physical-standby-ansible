@@ -1,0 +1,81 @@
+---
+- hosts: localhost
+  serial: 1
+  gather_facts: no
+  vars_files:
+    - vars.yml
+  tasks:
+
+   
+
+
+  - name: Copy RMAN template
+    template:
+      src: templates/rman_duplicate_singleredo.j2
+      dest: /tmp/rman_duplicate.rman 
+ 
+  - name: gen pfile
+    template:
+      src: templates/pfile_for_startup_nomount.j2
+      dest: /tmp/ansible_pfile_for_startup.ora
+    
+  - name: Gen start_nomount
+    template:
+      src: templates/start_nomount.j2
+      dest: /tmp/startup_nomount.sh
+
+  - name: start db in nomount
+    shell: sh /tmp/startup_nomount.sh
+    become: yes
+    become_user: oracle
+
+  - name: generate static listener entries
+    template:
+      src: templates/static_listener_config.j2
+      dest: /tmp/static_listener_ansible.ora
+
+  - name: Add static entry to listener.ora
+    shell: sed -i '/#oracle-ansible-start/,/#oracle-ansible-end/d' {{ standby_grid_home }}/network/admin/listener.ora && cat /tmp/static_listener_ansible.ora >> {{ standby_grid_home }}/network/admin/listener.ora
+    become: yes
+    become_user: oracle
+
+  - name: Reload listener 
+    shell: export ORACLE_SID=+ASM1; export ORACLE_HOME={{ standby_grid_home }} && {{ standby_grid_home }}/bin/lsnrctl stop LISTENER_ANSIBLE && {{ standby_grid_home }}/bin/lsnrctl start LISTENER_ANSIBLE
+    become: yes
+    become_user: oracle 
+
+  - name: Listener status
+    shell: export ORACLE_SID=+ASM1; export ORACLE_HOME={{ standby_grid_home }} && {{ standby_grid_home }}/bin/lsnrctl status LISTENER_ANSIBLE
+    become: yes
+    become_user: oracle
+    register: displayListenerStatus
+  - debug: var=displayListenerStatus.stdout_lines
+
+  - name: Create Audit file dest on local node
+    shell : mkdir -p /{{ package_top_parent }}/{{ standby_db_unique_name }}/admin/{{ standby_db_unique_name }}/adump 
+    become: yes
+    become_user: oracle
+    ignore_errors: true
+
+  - name: Create diagnostic dest on local node
+    shell: mkdir -p /{{ package_top_parent }}/{{ standby_db_unique_name }}
+    become: yes
+    become_user: oracle
+    ignore_errors: true
+
+  - name: Verify RMAN Duplicate file 
+    pause: 
+        prompt: 'Please review RMAN duplicate file /tmp/rman_duplicate.rman and give goahead to restore. press YES to apply or NO to abort'
+    register: confirmationDuplicate
+    failed_when: confirmationDuplicate.user_input=="NO"
+    until: confirmationDuplicate.user_input=="YES" or confirmationPatching.user_input=="NO"
+
+
+  - name: RMAN duplicate
+    shell: cp /tmp/rman_duplicate.rman /home/oracle && export ORACLE_HOME={{ standby_oracle_home }} ; {{ standby_oracle_home }}/bin/rman cmdfile=/home/oracle/rman_duplicate.rman >> /home/oracle/rman_duplicate_bam36es.log 
+    become: yes
+    become_user: oracle 
+ 
+
+
+

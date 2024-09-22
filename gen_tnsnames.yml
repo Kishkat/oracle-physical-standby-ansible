@@ -1,0 +1,19 @@
+---
+- hosts: localhost
+  serial: 1
+  gather_facts: no
+  vars_files:
+    - vars.yml
+  tasks:
+
+   
+
+
+  - name: Copy tnsnames.ora
+    template:
+      src: templates/tnsnames_ora.j2
+      dest: /tmp/tnsnames_custom.ora
+ 
+   
+
+
