@@ -1,0 +1,35 @@
+---
+- hosts: "{{ hosts }}"
+  serial: 1
+  gather_facts: no
+  vars_files:
+    - vars.yml
+
+  tasks:
+
+   
+
+
+  - name: Generate DG enable commands on primary
+    template: 
+      src: templates/primary_db_enable_dg.j2
+      dest: /tmp/primary_dg_enable_commands.sql
+    delegate_to: localhost 
+   
+  - name: Copy DG enable to primary host
+    copy:
+      src: /tmp/primary_dg_enable_commands.sql
+      dest: /tmp/primary_dg_enable_commands.sql
+      owner: oracle
+      group: oinstall
+      mode: 0755
+
+  - name: Enable DG commands on primary db
+    shell: export ORACLE_SID={{ primary_db_unique_name }} ; export ORACLE_HOME={{ primary_oracle_home }} && $ORACLE_HOME/bin/sqlplus / as sysdba @/tmp/primary_dg_enable_commands.sql
+    become_user: oracle
+    become: yes
+    register: DG_enable_output
+  - debug: var=DG_enable_output.stdout_lines
+   
+
+

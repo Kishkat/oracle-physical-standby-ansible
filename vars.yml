@@ -1,0 +1,59 @@
+#RMAN active duplicate template for dataguard
+#
+#
+#
+parent_directory_name: /u001/app/oracle 
+
+primary_data_diskgroup: +DATA 
+primary_fra_diskgroup: +DATA
+primary_redoa_diskgroup: +DATA
+#primary_redob_diskgroup: 
+
+standby_data_diskgroup: +DATA 
+standby_fra_diskgroup: +DATA
+standby_redoa_diskgroup: +DATA
+#standby_redob_diskgroup: 
+
+
+primary_db_unique_name: KISH 
+primary_db_instance_name: KISH
+standby_db_unique_name: DGKISH
+standby_db_instance_name: DGKISH
+
+primary_oracle_home: /u001/app/oracle/19c 
+
+isCDB: true 
+remote_listener_with_port: 
+local_listener_IP: 
+
+##TNSNAMES.ora
+#
+# Specify primary and standby database hostnames or scan name below
+primary_db_host: 
+standby_db_host: 
+listener_port: 1521
+aux_listener_port: 1536
+primary_sidlist:
+  - primaryinst1
+  - primaryinst2
+  - primaryinst3
+
+standby_sidlist:
+  - standbyinst1
+  - standbyinst2
+  - standbyinst3
+
+
+standby_grid_home: /u001/app/grid/19c
+standby_oracle_home: /u001/app/oracle/19c 
+
+#Static listener entries
+#
+
+auxiliary_db_name: KISH
+global_dbname: auxkk
+target_oracle_host_node: grid2dr
+
+#
+#
+sys_password: sysP5rd123

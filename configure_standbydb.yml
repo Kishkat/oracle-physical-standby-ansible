@@ -11,19 +11,28 @@
 
   - name: Copy RMAN template
     template:
-      src: templates/rman_duplicate_singleredo.j2
-      dest: /tmp/rman_duplicate.rman 
+      src: templates/rman_duplicate_singleredo_nonrac.j2
+      dest: /tmp/rman_duplicate.rman
+      owner: oracle 
+      group: oinstall
+      mode: 0755
  
   - name: gen pfile
     template:
       src: templates/pfile_for_startup_nomount.j2
       dest: /tmp/ansible_pfile_for_startup.ora
+      owner: oracle
+      group: oinstall
+      mode: 0755
     
   - name: Gen start_nomount
     template:
       src: templates/start_nomount.j2
       dest: /tmp/startup_nomount.sh
-
+      owner: oracle
+      group: oinstall
+      mode: 0755
+ 
   - name: start db in nomount
     shell: sh /tmp/startup_nomount.sh
     become: yes
@@ -40,25 +49,26 @@
     become_user: oracle
 
   - name: Reload listener 
-    shell: export ORACLE_SID=+ASM1; export ORACLE_HOME={{ standby_grid_home }} && {{ standby_grid_home }}/bin/lsnrctl stop LISTENER_ANSIBLE && {{ standby_grid_home }}/bin/lsnrctl start LISTENER_ANSIBLE
+    shell: export ORACLE_SID=+ASM; export ORACLE_HOME={{ standby_grid_home }} && {{ standby_grid_home }}/bin/lsnrctl stop LISTENER_ANSIBLE && {{ standby_grid_home }}/bin/lsnrctl start LISTENER_ANSIBLE
     become: yes
     become_user: oracle 
+    ignore_errors: true  
 
   - name: Listener status
-    shell: export ORACLE_SID=+ASM1; export ORACLE_HOME={{ standby_grid_home }} && {{ standby_grid_home }}/bin/lsnrctl status LISTENER_ANSIBLE
+    shell: export ORACLE_SID=+ASM; export ORACLE_HOME={{ standby_grid_home }} && {{ standby_grid_home }}/bin/lsnrctl status LISTENER_ANSIBLE
     become: yes
     become_user: oracle
     register: displayListenerStatus
   - debug: var=displayListenerStatus.stdout_lines
 
   - name: Create Audit file dest on local node
-    shell : mkdir -p /{{ package_top_parent }}/{{ standby_db_unique_name }}/admin/{{ standby_db_unique_name }}/adump 
+    shell : mkdir -p {{ parent_directory_name }}/{{ standby_db_unique_name }}/adump 
     become: yes
     become_user: oracle
     ignore_errors: true
 
   - name: Create diagnostic dest on local node
-    shell: mkdir -p /{{ package_top_parent }}/{{ standby_db_unique_name }}
+    shell: mkdir -p {{ parent_directory_name }}/{{ standby_db_unique_name }}
     become: yes
     become_user: oracle
     ignore_errors: true
@@ -72,7 +82,7 @@
 
 
   - name: RMAN duplicate
-    shell: cp /tmp/rman_duplicate.rman /home/oracle && export ORACLE_HOME={{ standby_oracle_home }} ; {{ standby_oracle_home }}/bin/rman cmdfile=/home/oracle/rman_duplicate.rman >> /home/oracle/rman_duplicate_bam36es.log 
+    shell: cp /tmp/rman_duplicate.rman /home/oracle && export ORACLE_HOME={{ standby_oracle_home }} ; {{ standby_oracle_home }}/bin/rman cmdfile=/home/oracle/rman_duplicate.rman > /home/oracle/rman_duplicate_{{ standby_db_unique_name }}.log 
     become: yes
     become_user: oracle 
  
