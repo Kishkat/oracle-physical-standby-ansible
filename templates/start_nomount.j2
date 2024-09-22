@@ -1,0 +1,8 @@
+export ORACLE_SID={{ standby_db_instance_name  }}
+export ORACLE_HOME={{ standby_oracle_home }}
+
+
+$ORACLE_HOME/bin/sqlplus -s  / as sysdba << EOF
+startup nomount pfile='/tmp/ansible_pfile_for_startup.ora';
+exit
+EOF

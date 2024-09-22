@@ -1,0 +1,21 @@
+#oracle-ansible-start
+#Adding new listener with port 1536
+
+SID_LIST_LISTENER_ANSIBLE    =
+ (SID_LIST =
+    (SID_DESC =
+      (GLOBAL_DBNAME = {{ global_dbname }} )
+      (ORACLE_HOME = {{ standby_oracle_home }})
+      (SID_NAME = {{ standby_db_instance_name }} )
+    )
+ )
+
+LISTENER_ANSIBLE =
+ (DESCRIPTION_LIST =
+    (DESCRIPTION =
+       (ADDRESS = (PROTOCOL = TCP) (HOST = {{ target_oracle_host_node }}) (PORT = 1536))
+    )
+ )
+
+# Transient entry until the physical standby restore , will be removed
+#oracle-ansible-end

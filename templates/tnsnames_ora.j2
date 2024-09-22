@@ -1,0 +1,29 @@
+{% if primary_sidlist is defined %}
+{% for sid in primary_sidlist %} 
+{{ sid }} =
+  (DESCRIPTION =
+    (ADDRESS = (PROTOCOL = TCP)(HOST = {{ primary_db_scan_host }} )(PORT = {{ listener_port }}))
+    (CONNECT_DATA =
+      (SERVER = DEDICATED)
+      (SERVICE_NAME = {{ primary_db_unique_name }})
+      (INSTANCE_NAME = {{ sid }} )
+    )
+  )
+{% endfor %}
+{% endif %}
+
+
+{% if standby_sidlist is defined %}
+{% for sid in standby_sidlist %}
+{{ sid }} =
+  (DESCRIPTION =
+    (ADDRESS = (PROTOCOL = TCP)(HOST = {{ standby_db_scan_host }} )(PORT = {{ listener_port }}))
+    (CONNECT_DATA =
+      (SERVER = DEDICATED)
+      (SERVICE_NAME = {{ standby_db_unique_name }})
+      (INSTANCE_NAME = {{ sid }} )
+    )
+  )
+{% endfor %}
+{% endif %}
+
