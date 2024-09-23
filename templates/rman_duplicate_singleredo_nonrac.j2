@@ -29,6 +29,7 @@ allocate channel d4 device type disk;
 {% endif %}
  set db_create_file_dest='{{ standby_data_diskgroup }}'
 {% endif %}
+{% endif %}
 set control_files='{{ standby_redoa_diskgroup }}/{{ standby_db_unique_name }}/controlfile/current.ctl'
 set fal_client='{{ standby_db_unique_name }}'
  set fal_server='{{ primary_db_unique_name }}'
