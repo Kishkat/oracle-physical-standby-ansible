@@ -1,4 +1,4 @@
-set echo on
+se echo on
 connect target sys/{{ sys_password }}@{{ primary_db_instance_name }}
 connect auxiliary sys/{{ sys_password }}@{{ target_oracle_host_node }}:{{ aux_listener_port }}/{{ global_dbname }}
 run {
@@ -16,9 +16,20 @@ allocate channel d4 device type disk;
  set instance_name='{{ standby_db_instance_name }}'
  set instance_number='1'
  set compatible='19.0.0'
+{% if isOMFEnabledOnPrimary is not defined %} 
  set db_file_name_convert='{{ primary_data_diskgroup}}/{{ primary_db_unique_name}}/','{{ standby_data_diskgroup }}/{{ standby_db_unique_name }}/','{{ primary_fra_diskgroup }}/{{ primary_db_unique_name }}/','{{ standby_fra_diskgroup }}/{{ standby_db_unique_name }}/'
  set log_file_name_convert='{{ primary_redoa_diskgroup}}/{{ primary_db_unique_name}}/','{{ standby_redoa_diskgroup }}/{{ standby_db_unique_name }}/','{{ primary_fra_diskgroup }}/{{ primary_db_unique_name }}/','{{ standby_fra_diskgroup }}/{{ standby_db_unique_name }}/'
- set control_files='{{ standby_redoa_diskgroup }}/{{ standby_db_unique_name }}/controlfile/current.ctl'
+{% endif %}
+{% if isOMFEnabledOnPrimary is defined %}
+{% if isDiskgroupDifferentOnStandby is defined %}
+{% if isRedoLogfileOMF is defined %}
+ set db_create_online_log_dest_1='{{ standby_redoa_diskgroup }}'
+{% else %}
+ set log_file_name_convert='{{ primary_redoa_diskgroup}}/{{ primary_db_unique_name}}/','{{ standby_redoa_diskgroup }}/{{ standby_db_unique_name }}/'
+{% endif %}
+ set db_create_file_dest='{{ standby_data_diskgroup }}'
+{% endif %}
+set control_files='{{ standby_redoa_diskgroup }}/{{ standby_db_unique_name }}/controlfile/current.ctl'
 set fal_client='{{ standby_db_unique_name }}'
  set fal_server='{{ primary_db_unique_name }}'
  set standby_file_management='AUTO'
