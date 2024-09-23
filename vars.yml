@@ -4,6 +4,30 @@
 #
 parent_directory_name: /u001/app/oracle 
 
+
+#If primary and standby databases are in same diskgroup and if OMF is set on primary : db_create_file_dest, then use the same on standby
+#Omit file name converts 
+
+# Refer: RMAN DUPLICATE / RESTORE including Standby in ASM with OMF / non-OMF / Mixed Name for Datafile / Online Log / Controlfile (Doc ID 1910175.1)
+# and update below parameters accordingly
+#
+# Note: If OMF is enabled on datafile/logfile on primary and db_file_name_convert And/Or log_file_name_convert is used during active duplicate to standby
+#       then the standby database alert log will have below errors:
+#WARNING: The converted filename '+DATA/DGKISH/datafile/undotbs1.271.1066361153'
+#         is an ASM fully qualified filename.
+#         Changing the filename to '+DATA/MUST_RENAME_THIS_DATAFILE_4.4294967295.4294967295'.
+#         Please rename it accordingly.
+#
+#WARNING: The converted filename '+DATA/kish/onlinelog/group_5.289.1067865227'
+#         is an ASM fully qualified filename.
+#         Changing the filename to '+DATA/MUST_RENAME_THIS_LOGFILE_5.4294967295.4294967295'.
+#         Please rename it accordingly.
+
+isOMFEnabledOnPrimary:
+isDiskgroupDifferentOnStandby:
+isRedoLogfileOMF:
+
+
 primary_data_diskgroup: +DATA 
 primary_fra_diskgroup: +DATA
 primary_redoa_diskgroup: +DATA
@@ -13,6 +37,7 @@ standby_data_diskgroup: +DATA
 standby_fra_diskgroup: +DATA
 standby_redoa_diskgroup: +DATA
 #standby_redob_diskgroup: 
+
 
 
 primary_db_unique_name: KISH 
@@ -49,7 +74,7 @@ standby_oracle_home: /u001/app/oracle/19c
 
 #Static listener entries
 #
-
+#Below Auxiliary db name should be same as db_name on primary while creating standby database
 auxiliary_db_name: KISH
 global_dbname: auxkk
 target_oracle_host_node: grid2dr
