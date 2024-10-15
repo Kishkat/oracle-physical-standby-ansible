@@ -16,6 +16,8 @@
       owner: oracle 
       group: oinstall
       mode: 0755
+    become: yes
+    become_user: oracle
  
   - name: gen pfile
     template:
@@ -24,6 +26,8 @@
       owner: oracle
       group: oinstall
       mode: 0755
+    become: yes  
+    become_user: oracle
     
   - name: Gen start_nomount
     template:
@@ -32,7 +36,9 @@
       owner: oracle
       group: oinstall
       mode: 0755
- 
+    become: yes
+    become_user: oracle
+    
   - name: start db in nomount
     shell: sh /tmp/startup_nomount.sh
     become: yes
