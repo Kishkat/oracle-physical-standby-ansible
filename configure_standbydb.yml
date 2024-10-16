@@ -17,7 +17,7 @@
       group: oinstall
       mode: 0755
     become: yes
-    become_user: oracle
+    become_user: root
  
   - name: gen pfile
     template:
@@ -27,7 +27,7 @@
       group: oinstall
       mode: 0755
     become: yes  
-    become_user: oracle
+    become_user: root
     
   - name: Gen start_nomount
     template:
@@ -37,7 +37,7 @@
       group: oinstall
       mode: 0755
     become: yes
-    become_user: oracle
+    become_user: root
     
   - name: start db in nomount
     shell: sh /tmp/startup_nomount.sh
